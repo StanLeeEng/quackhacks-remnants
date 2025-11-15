@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - individual accounts
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  password     String // Hash this in your app
+  voiceId      String? // ElevenLabs voice ID from initial voice memo
+  voiceMemoUrl String? // URL to stored voice memo file
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  familyMemberships FamilyMember[]
+  createdFamilies   Family[]         @relation("FamilyCreator")
+  audioRecordings   AudioRecording[]
+  sharedWith        SharedAudio[]    @relation("SharedWithUser")
+  sharedBy          SharedAudio[]    @relation("SharedByUser")
+
+  @@index([email])
+}
+
+// Family model - groups of users
+model Family {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  inviteCode  String   @unique @default(cuid()) // For inviting members
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdBy    User             @relation("FamilyCreator", fields: [createdById], references: [id])
+  members      FamilyMember[]
+  audioLibrary AudioRecording[]
+
+  @@index([inviteCode])
+  @@index([createdById])
+}
+
+// Junction table for users in families with roles
+model FamilyMember {
+  id       String     @id @default(cuid())
+  userId   String
+  familyId String
+  role     FamilyRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, familyId])
+  @@index([userId])
+  @@index([familyId])
+}
+
+enum FamilyRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// Audio recordings stored in the family library
+model AudioRecording {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  audioUrl    String // URL to audio file (stored in Vercel Blob or S3)
+  duration    Int? // Duration in seconds
+  fileSize    Int? // Size in bytes
+  mimeType    String  @default("audio/mpeg")
+
+  // Voice cloning
+  generatedVoiceId String? // If this was used to create a voice clone
+  usedVoiceId      String? // If this was generated using a cloned voice
+
+  // Metadata
+  tags     String[] // Tags for organization
+  isPublic Boolean  @default(false)
+
+  // Ownership
+  uploadedById String
+  familyId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  uploadedBy User          @relation(fields: [uploadedById], references: [id])
+  family     Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  sharedWith SharedAudio[]
+
+  @@index([uploadedById])
+  @@index([familyId])
+  @@index([tags])
+  @@index([createdAt])
+}
+
+// Track who has access to specific audio recordings
+model SharedAudio {
+  id           String   @id @default(cuid())
+  audioId      String
+  sharedWithId String
+  sharedById   String
+  canDownload  Boolean  @default(true)
+  canEdit      Boolean  @default(false)
+  sharedAt     DateTime @default(now())
+
+  // Relations
+  audio      AudioRecording @relation(fields: [audioId], references: [id], onDelete: Cascade)
+  sharedWith User           @relation("SharedWithUser", fields: [sharedWithId], references: [id], onDelete: Cascade)
+  sharedBy   User           @relation("SharedByUser", fields: [sharedById], references: [id])
+
+  @@unique([audioId, sharedWithId])
+  @@index([audioId])
+  @@index([sharedWithId])
+}
