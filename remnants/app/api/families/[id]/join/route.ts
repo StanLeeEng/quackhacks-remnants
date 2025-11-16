@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
@@ -6,13 +8,24 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id: familyId } = await params;
     const body = await request.json();
-    const { userId, inviteCode } = body;
+    const { inviteCode } = body;
 
-    if (!userId || !inviteCode) {
+    if (!inviteCode) {
       return NextResponse.json(
-        { error: 'User ID and invite code are required' },
+        { success: false, error: 'Invite code is required' },
         { status: 400 }
       );
     }
@@ -31,7 +44,7 @@ export async function POST(
 
     if (family.inviteCode !== inviteCode) {
       return NextResponse.json(
-        { error: 'Invalid invite code' },
+        { success: false, error: 'Invalid invite code' },
         { status: 403 }
       );
     }
@@ -40,7 +53,7 @@ export async function POST(
     const existingMember = await prisma.familyMember.findUnique({
       where: {
         userId_familyId: {
-          userId,
+          userId: session.user.id,
           familyId,
         },
       },
@@ -48,7 +61,7 @@ export async function POST(
 
     if (existingMember) {
       return NextResponse.json(
-        { error: 'User is already a member of this family' },
+        { success: false, error: 'User is already a member of this family' },
         { status: 400 }
       );
     }
@@ -56,7 +69,7 @@ export async function POST(
     // Add user to family
     const familyMember = await prisma.familyMember.create({
       data: {
-        userId,
+        userId: session.user.id,
         familyId,
         role: 'MEMBER',
       },
@@ -81,7 +94,7 @@ export async function POST(
   } catch (error) {
     console.error('Join family error:', error);
     return NextResponse.json(
-      { error: 'Failed to join family' },
+      { success: false, error: 'Failed to join family' },
       { status: 500 }
     );
   }

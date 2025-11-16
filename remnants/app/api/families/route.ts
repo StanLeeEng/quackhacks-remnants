@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
-// Create a new family
+// POST: Create a new family
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, description, createdById } = body;
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-    if (!name || !createdById) {
+    if (!session?.user) {
       return NextResponse.json(
-        { error: 'Name and creator ID are required' },
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { name, description } = body;
+
+    if (!name) {
+      return NextResponse.json(
+        { success: false, error: 'Name is required' },
         { status: 400 }
       );
     }
@@ -19,10 +32,10 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description,
-        createdById,
+        createdById: session.user.id,
         members: {
           create: {
-            userId: createdById,
+            userId: session.user.id,
             role: 'ADMIN',
           },
         },
@@ -50,22 +63,23 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Family creation error:', error);
     return NextResponse.json(
-      { error: 'Failed to create family' },
+      { success: false, error: 'Failed to create family' },
       { status: 500 }
     );
   }
 }
 
-// Get all families for a user
-export async function GET(request: NextRequest) {
+// GET: Get all families for authenticated user
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
-    if (!userId) {
+    if (!session?.user) {
       return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
       );
     }
 
@@ -73,11 +87,18 @@ export async function GET(request: NextRequest) {
       where: {
         members: {
           some: {
-            userId,
+            userId: session.user.id,
           },
         },
       },
       include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         members: {
           include: {
             user: {
@@ -85,6 +106,7 @@ export async function GET(request: NextRequest) {
                 id: true,
                 name: true,
                 email: true,
+                voiceId: true,
               },
             },
           },
@@ -92,8 +114,12 @@ export async function GET(request: NextRequest) {
         _count: {
           select: {
             audioLibrary: true,
+            members: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
@@ -105,7 +131,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Fetch families error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch families' },
+      { success: false, error: 'Failed to fetch families' },
       { status: 500 }
     );
   }
