@@ -146,7 +146,7 @@ export default function SignUpForm() {
 
           <Button
             type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-300"
+            className="w-full bg-indigo-600"
             disabled={loading}
           >
             Create an account

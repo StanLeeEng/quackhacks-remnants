@@ -91,7 +91,7 @@ export default function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full bg-orange-500"
+            className="w-full bg-indigo-600"
             disabled={loading}
           >
             Login

@@ -169,7 +169,7 @@ export default function MessageGenerator({ voiceId, userName }: MessageGenerator
           disabled={isGenerating || !customMessage.trim()}
           className="mt-4 w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 font-semibold transition-colors"
         >
-          {isGenerating ? 'Generating...' : '✏️ Generate Custom Message'}
+          {isGenerating ? 'Generating...' : 'Generate Custom Message'}
         </button>
       </div>
 
@@ -184,7 +184,7 @@ export default function MessageGenerator({ voiceId, userName }: MessageGenerator
               onClick={downloadAudio}
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition-colors"
             >
-              ⬇️ Download
+                Download
             </button>
             <button
               onClick={() => {
