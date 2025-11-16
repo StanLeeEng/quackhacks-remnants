@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { Mic } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -88,21 +89,19 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Record Your Voice</h2>
-      <p className="text-sm text-gray-600 mb-6">
-        Record a 10-15 second sample of your voice speaking naturally. This will be used to clone your voice.
+      <p className="text-sm text-gray-600 mb-6 text-center">
+        Record a 15-20 second sample of your voice speaking naturally. This will be used to clone your voice.
       </p>
 
       <div className="flex flex-col items-center space-y-4">
         {!audioURL ? (
           <>
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-lg">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
               <div className={`w-24 h-24 rounded-full bg-white flex items-center justify-center ${isRecording ? 'animate-pulse' : ''}`}>
                 {isRecording ? (
                   <div className="w-6 h-6 bg-red-500 rounded-full animate-pulse"></div>
                 ) : (
-                  <svg className="w-12 h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-                  </svg>
+                  <Mic className="w-12 h-12 text-blue-600" />
                 )}
               </div>
             </div>
@@ -173,7 +172,7 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
         <ul className="list-disc list-inside mt-2 space-y-1">
           <li>Speak naturally in your normal voice</li>
           <li>Record in a quiet environment</li>
-          <li>Aim for 30-60 seconds of clear speech</li>
+          <li>Aim for at least 15-20 seconds of clear speech</li>
           <li>Avoid background noise or music</li>
         </ul>
       </div>
