@@ -1,9 +1,15 @@
-import Memory from "@/components/memory"
+"use client";
+
+import { useRouter } from "next/navigation";
+import Memory from "@/components/memory";
+import { Button } from "@/components/ui/button";
 
 
 export default function Dashboard() {
+    const router = useRouter();
+
     return (
-        <div className="flex justify-between items-start gap-6 min-h-screen p-6">
+        <div className="flex justify-between items-start gap-6 min-h-screen p-6 relative">
             <div className="border rounded-lg p-12 flex-1 max-h-[calc(100vh-3rem)]">
                 <h1 className="text-3xl font-bold mb-6">Memories</h1>
                 <div className="grid grid-cols-3 gap-4 overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
@@ -46,6 +52,15 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Send Remnant Button - Fixed to bottom right */}
+            <Button
+                onClick={() => router.push("/generate")}
+                className="fixed bottom-8 right-8 px-6 py-6 text-lg shadow-lg"
+                size="lg"
+            >
+                Send Remnant
+            </Button>
         </div>
     )
 }
