@@ -1,4 +1,5 @@
 import SignUpForm from '@/components/sign-up'
+import { Navbar } from '@/components/navbar'
 
 export const metadata = {
   title: 'Sign up — Remnant',
@@ -7,6 +8,7 @@ export const metadata = {
 export default function SignUpPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-rose-50 dark:from-neutral-900 dark:via-neutral-950 dark:to-black">
+      <Navbar/>
       <div className="mx-auto px-6 py-12">
         <SignUpForm />
       </div>
