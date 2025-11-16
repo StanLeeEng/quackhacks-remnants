@@ -16,7 +16,13 @@ export default function Home() {
                 href={"/sign-up"}
                 className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
               >
-                Get Started
+                Sign Up
+              </a>
+              <a
+                href={"/login"}
+                className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+              >
+                Login
               </a>
             </div>
 
