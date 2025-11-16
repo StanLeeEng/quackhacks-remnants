@@ -24,10 +24,27 @@ export default function MessageGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string>("");
   const [generatedMessage, setGeneratedMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [familyId, setFamilyId] = useState<string>("");
+  const [families, setFamilies] = useState<Array<{id: string; name: string}>>([]);
 
   useEffect(() => {
     fetchPresets();
+    fetchFamilies();
   }, []);
+
+  const fetchFamilies = async () => {
+    try {
+      const response = await fetch("/api/families");
+      const data = await response.json();
+      if (data.success && data.families.length > 0) {
+        setFamilies(data.families);
+        setFamilyId(data.families[0].id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch families:", error);
+    }
+  };
 
   const fetchPresets = async () => {
     try {
@@ -89,6 +106,46 @@ export default function MessageGenerator({
     }
   };
 
+  const saveMemory = async () => {
+    if (!audioUrl || !familyId) {
+      alert("Please select a family to save this memory to");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/memories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: recipientName ? `Message for ${recipientName}` : "Voice Message",
+          description: generatedMessage,
+          audioUrl: audioUrl,
+          familyId: familyId,
+          usedVoiceId: voiceId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Memory saved and shared with family members!");
+        setAudioUrl("");
+        setGeneratedMessage("");
+        setCustomMessage("");
+        setRecipientName("");
+        setSelectedPreset("");
+      } else {
+        alert(`Failed to save memory: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error saving memory:", error);
+      alert("An error occurred while saving");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -97,6 +154,26 @@ export default function MessageGenerator({
       <p className="text-sm text-gray-600 mb-6">
         Create personalized messages using {userName}&apos;s cloned voice
       </p>
+
+      {/* Family Selector */}
+      {families.length > 0 && (
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Send to Family
+          </label>
+          <select
+            value={familyId}
+            onChange={(e) => setFamilyId(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+          >
+            {families.map((family) => (
+              <option key={family.id} value={family.id}>
+                {family.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Recipient Name */}
       <div className="mb-6">
@@ -188,23 +265,30 @@ export default function MessageGenerator({
             &quot;{generatedMessage}&quot;
           </p>
           <audio controls src={audioUrl} className="w-full mb-3" />
-          <div className="flex space-x-3">
+          <div className="flex space-x-3 mb-3">
+            <button
+              onClick={saveMemory}
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-semibold transition-colors"
+            >
+              {isSaving ? "Saving..." : "💾 Save to Memories"}
+            </button>
             <button
               onClick={downloadAudio}
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition-colors"
             >
               Download
             </button>
-            <button
-              onClick={() => {
-                setAudioUrl("");
-                setGeneratedMessage("");
-              }}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-semibold transition-colors"
-            >
-              Clear
-            </button>
           </div>
+          <button
+            onClick={() => {
+              setAudioUrl("");
+              setGeneratedMessage("");
+            }}
+            className="w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-semibold transition-colors"
+          >
+            Clear
+          </button>
         </div>
       )}
     </div>
