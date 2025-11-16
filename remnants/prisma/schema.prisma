@@ -11,6 +11,7 @@ datasource db {
 }
 
 // User model - individual accounts
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -28,10 +29,18 @@ model User {
   sharedWith        SharedAudio[]    @relation("SharedWithUser")
   sharedBy          SharedAudio[]    @relation("SharedByUser")
 
+  emailVerified Boolean   @default(false)
+  sessions      Session[]
+  accounts      Account[]
+
+  image String?
+
   @@index([email])
+  @@map("user")
 }
 
 // Family model - groups of users
+
 model Family {
   id          String   @id @default(cuid())
   name        String
@@ -51,6 +60,7 @@ model Family {
 }
 
 // Junction table for users in families with roles
+
 model FamilyMember {
   id       String     @id @default(cuid())
   userId   String
@@ -74,6 +84,7 @@ enum FamilyRole {
 }
 
 // Audio recordings stored in the family library
+
 model AudioRecording {
   id          String  @id @default(cuid())
   title       String
@@ -110,6 +121,7 @@ model AudioRecording {
 }
 
 // Track who has access to specific audio recordings
+
 model SharedAudio {
   id           String   @id @default(cuid())
   audioId      String
@@ -127,4 +139,49 @@ model SharedAudio {
   @@unique([audioId, sharedWithId])
   @@index([audioId])
   @@index([sharedWithId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
 }
