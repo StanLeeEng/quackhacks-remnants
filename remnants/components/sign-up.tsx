@@ -1,88 +1,158 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signUp } from "@/lib/auth-client";
 
 export default function SignUpForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    if (!email || !password || !name ) {
-      setError('All fields including a voice memo file are required.')
-      return
-    }
-    setLoading(true)
-    try {
-      const fd = new FormData()
-      fd.append('email', email)
-      fd.append('password', password)
-      fd.append('name', name)
-      const res = await fetch('/api/auth/register', { method: 'POST', body: fd })
-      const json = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        setError(json.error || 'Failed to register')
-        setLoading(false)
-        return
-      }
+  const handleEmailSignUp = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-      // On success, optionally auto-login or redirect
-      router.push('/record')
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      setError(msg || 'Server error')
-    } finally {
-      setLoading(false)
+    // Client-side validation
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !passwordConfirmation
+    ) {
+      setError("All fields are required.");
+      return;
     }
-  }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (password !== passwordConfirmation) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    await signUp.email({
+      email,
+      password,
+      name: `${firstName} ${lastName}`,
+      image: "",
+      callbackURL: "/",
+      fetchOptions: {
+        onResponse: () => setLoading(false),
+        onRequest: () => setLoading(true),
+        onError: (ctx) => {
+          setError(ctx.error.message || "An unknown error occurred.");
+        },
+        onSuccess: async () => {
+          router.push("/login");
+        },
+      },
+    });
+  };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="z-50 max-w-md rounded-md">
       <CardHeader>
-        <CardTitle>Sign up for Remnant</CardTitle>
-        <CardDescription>Create your account</CardDescription>
+        <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
+        <CardDescription className="text-xs md:text-sm">
+          Enter your information to create an account
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit}>
-          <div className="flex flex-col gap-4">
+        <form className="grid gap-4" onSubmit={handleEmailSignUp}>
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
+              <Label htmlFor="firstName">First name</Label>
+              <Input
+                id="firstName"
+                placeholder="Benny"
+                required
+                onChange={(e) => setFirstName(e.target.value)}
+                onKeyDown={() => setError(null)}
+                value={firstName}
+              />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Label htmlFor="lastName">Last name</Label>
+              <Input
+                id="lastName"
+                placeholder="Beaver"
+                required
+                onChange={(e) => setLastName(e.target.value)}
+                onKeyDown={() => setError(null)}
+                value={lastName}
+              />
             </div>
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="BennyDaBeaver@example.com"
+              required
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={() => setError(null)}
+              value={email}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={() => setError(null)}
+              autoComplete="new-password"
+              placeholder="Password"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              onKeyDown={() => setError(null)}
+              autoComplete="new-password"
+              placeholder="Confirm Password"
+            />
+          </div>
+
+          {error && <p className="text-center text-red-500 text-sm">{error}</p>}
+
+          <Button
+            type="submit"
+            className="w-full bg-orange-500 hover:bg-orange-300"
+            disabled={loading}
+          >
+            Create an account
+          </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button onClick={onSubmit} disabled={loading} className="w-full">
-          {loading ? 'Signing up…' : 'Sign up'}
-        </Button>
-        {error && <div className="text-sm text-red-600">{error}</div>}
-      </CardFooter>
     </Card>
-  )
+  );
 }

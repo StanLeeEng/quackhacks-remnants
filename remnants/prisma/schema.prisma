@@ -16,7 +16,6 @@ model User {
   id           String   @id @default(cuid())
   email        String   @unique
   name         String
-  password     String // Hash this in your app
   voiceId      String? // ElevenLabs voice ID from initial voice memo
   voiceMemoUrl String? // URL to stored voice memo file
   createdAt    DateTime @default(now())
