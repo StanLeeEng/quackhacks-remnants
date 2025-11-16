@@ -61,7 +61,7 @@ export default function LoginForm() {
       <CardContent>
         {/* Converted to a <form> with an onSubmit handler */}
         <form className="grid gap-4" onSubmit={handleEmailLogin}>
-          <div className="grid gap-2">
+          <div className="grid w-100 gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
