@@ -114,13 +114,25 @@ export default function MessageGenerator({
 
     setIsSaving(true);
     try {
+      // Convert blob URL to base64 for storage
+      const audioBlob = await fetch(audioUrl).then(r => r.blob());
+      const reader = new FileReader();
+      
+      const base64Audio = await new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64);
+        };
+        reader.readAsDataURL(audioBlob);
+      });
+
       const response = await fetch("/api/memories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: recipientName ? `Message for ${recipientName}` : "Voice Message",
           description: generatedMessage,
-          audioUrl: audioUrl,
+          audioUrl: base64Audio, // Save as base64 data URL
           familyId: familyId,
           usedVoiceId: voiceId,
         }),
