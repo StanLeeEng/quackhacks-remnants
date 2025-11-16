@@ -120,7 +120,7 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
                     onClick={startRecording}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
                   >
-                    🎤 Start Recording
+                    Start Recording
                   </button>
                   {onCancel && (
                     <button
@@ -136,7 +136,7 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
                   onClick={stopRecording}
                   className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-colors"
                 >
-                  ⏹️ Stop Recording
+                    Stop Recording
                 </button>
               )}
             </div>

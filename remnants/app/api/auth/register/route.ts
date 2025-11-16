@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/auth';
-import { ElevenLabsClient } from 'elevenlabs';
 
-const elevenLabs = new ElevenLabsClient({
-  apiKey: process.env.ELEVENLABS_API_KEY,
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,11 +8,11 @@ export async function POST(request: NextRequest) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const name = formData.get('name') as string;
-    const voiceMemo = formData.get('voiceMemo') as File;
 
-    if (!email || !password || !name || !voiceMemo) {
+
+    if (!email || !password || !name) {
       return NextResponse.json(
-        { error: 'Email, password, name, and voice memo are required' },
+        { error: 'Email, password, and name are required' },
         { status: 400 }
       );
     }
@@ -33,32 +28,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Clone voice from voice memo
-    const buffer = await voiceMemo.arrayBuffer();
-    const file = new File([buffer], voiceMemo.name, { type: voiceMemo.type });
-
-    const voice = await elevenLabs.voices.add({
-      name: `${name}'s Voice`,
-      description: `Voice clone for ${name}`,
-      files: [file],
-    });
-
-    // TODO: Upload voice memo to storage (Vercel Blob/S3)
-    // For now, we'll store a placeholder URL
-    const voiceMemoUrl = `placeholder_url_for_${email}_voice_memo`;
-
     // Create user in database
     const user = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
-        name,
-        voiceId: voice.voice_id,
-        voiceMemoUrl,
+        password,
+        name
       },
       select: {
         id: true,
