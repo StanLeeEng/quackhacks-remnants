@@ -3,13 +3,16 @@
 import { useRouter } from "next/navigation";
 import Memory from "@/components/memory";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/navbar";
 
 
 export default function Dashboard() {
     const router = useRouter();
 
     return (
-        <div className="flex justify-between items-start gap-6 min-h-screen p-6 relative">
+        <>
+        <Navbar/>
+        <div className="min-h-screen pt-24 flex justify-between items-start gap-6 min-h-screen p-6 relative">
             <div className="border rounded-lg p-12 flex-1 max-h-[calc(100vh-3rem)]">
                 <h1 className="text-3xl font-bold mb-6">Memories</h1>
                 <div className="grid grid-cols-3 gap-4 overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
@@ -62,5 +65,6 @@ export default function Dashboard() {
                 Send Remnant
             </Button>
         </div>
+        </>
     )
 }

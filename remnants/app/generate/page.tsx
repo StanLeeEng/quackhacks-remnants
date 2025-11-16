@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
-import MessageGenerator from "@/components/messageGenerator"
+import MessageGenerator from "@/components/MessageGenerator"
 
 export default function GeneratePage() {
     const [userData, setUserData] = useState<{ voiceId: string; name: string } | null>(null);

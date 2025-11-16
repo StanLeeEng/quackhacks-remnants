@@ -25,8 +25,17 @@ export const Navbar = () => {
                     </Link>
 
                     {session?.user ? (
-                        <div>
-                            <Button onClick={handleSignOut} className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
+                        <div className="flex">
+                            <Button onClick={() => router.push("/profile")}
+                                className="mr-2 inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
+                                Profile
+                            </Button>
+                            <Button onClick={() => router.push("/dashboard")}
+                                className="mr-2 inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
+                                Dashboard
+                            </Button>
+                            <Button onClick={handleSignOut} 
+                                className="mr-2 inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
                                 Sign Out
                             </Button>
                         </div>
