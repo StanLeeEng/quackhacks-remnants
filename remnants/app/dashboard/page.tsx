@@ -15,7 +15,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-3 gap-4 overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
                     <Memory 
                         personName="Grandma"
-                        message="Happy Birthday! I love you so much!"
+                        message="Happy Birthday! I love you so much! bruh bruh bruh bruh bruh"
                         audioUrl="/api/audio/123"
                     />
                     <Memory 

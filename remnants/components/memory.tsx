@@ -58,7 +58,7 @@ export default function Memory({ personName, message, audioUrl }: MemoryProps) {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 h-[88px]">
         <CardTitle className="text-lg">{personName}</CardTitle>
         <CardDescription className="text-sm mt-1 line-clamp-2">
           {message}
