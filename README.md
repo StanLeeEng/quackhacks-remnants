@@ -1,4 +1,4 @@
-# WELCCOM TO REMNANT
+# WELCOME TO REMNANT
 ### Made by: Pedro Blanco & Stanley Eng
 ### Built with: ElevenLabs, Better-Auth, Next.JS, Prisma, Neon, React, TypeScript, Tailwind
 
