@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-
+import { auth } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +8,6 @@ export async function POST(request: NextRequest) {
     const password = formData.get('password') as string;
     const name = formData.get('name') as string;
 
-
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: 'Email, password, and name are required' },
@@ -17,37 +15,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
-    }
-    // Create user in database
-    const user = await prisma.user.create({
-      data: {
+    // Use better-auth's signup API
+    const response = await auth.api.signUpEmail({
+      body: {
         email,
         password,
-        name
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        voiceId: true,
-        createdAt: true,
+        name,
       },
     });
 
     return NextResponse.json({
       success: true,
-      user,
-      message: 'User registered successfully with voice clone',
+      user: response,
+      message: 'User registered successfully',
     }, { status: 201 });
 
   } catch (error) {

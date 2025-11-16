@@ -87,9 +87,9 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Record Your Voice</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Record Your Voice</h2>
       <p className="text-sm text-gray-600 mb-6">
-        Record a 30-60 second sample of your voice speaking naturally. This will be used to clone your voice.
+        Record a 10-15 second sample of your voice speaking naturally. This will be used to clone your voice.
       </p>
 
       <div className="flex flex-col items-center space-y-4">
@@ -155,13 +155,13 @@ export default function VoiceRecorder({ onRecordingComplete, onCancel }: VoiceRe
                 onClick={handleSubmit}
                 className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition-colors"
               >
-                ✓ Use This Recording
+                Use This Recording
               </button>
               <button
                 onClick={handleReset}
                 className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-semibold transition-colors"
               >
-                🔄 Record Again
+                Record Again
               </button>
             </div>
           </>
