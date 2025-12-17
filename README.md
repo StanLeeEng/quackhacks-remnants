@@ -27,4 +27,4 @@ The main thing that we would want to really hammer down is the styling of the si
 - First, clone the repository
 - Then run ``npm install``
 - Finally run ``npm run dev``
-- Access the web app on "localhost:3000"
+- Access the web app on ``http://localhost:3000``
